@@ -1,0 +1,53 @@
+# 3D lattice for FCC
+import numpy as np
+import matplotlib.pyplot as plt
+
+a = 1.0    # lattice constant
+n = 5      # number of unit cells along each direction
+
+# corner atoms: standard simple cubic grid
+x = np.arange(n) * a
+y = np.arange(n) * a
+z = np.arange(n) * a
+X, Y, Z = np.meshgrid(x, y, z)
+corners_x = X.flatten()
+corners_y = Y.flatten()
+corners_z = Z.flatten()
+
+# face-centered atoms: 3 unique face-center positions per unit cell
+# (each face pair shares one atom due to periodicity, so 3, not 6)
+face_offsets = [
+    (a/2, a/2, 0),   # center of top/bottom faces
+    (a/2, 0, a/2),   # center of front/back faces
+    (0, a/2, a/2),   # center of left/right faces
+]
+
+face_x, face_y, face_z = [], [], []
+
+for ox, oy, oz in face_offsets:
+    xf = np.arange(n) * a + ox
+    yf = np.arange(n) * a + oy
+    zf = np.arange(n) * a + oz
+    Xf, Yf, Zf = np.meshgrid(xf, yf, zf)
+    face_x.append(Xf.flatten())
+    face_y.append(Yf.flatten())
+    face_z.append(Zf.flatten())
+
+face_x = np.concatenate(face_x)
+face_y = np.concatenate(face_y)
+face_z = np.concatenate(face_z)
+
+fig = plt.figure(figsize=(7, 7))
+ax = fig.add_subplot(111, projection='3d')
+
+ax.scatter3D(corners_x, corners_y, corners_z, color='blue', s=30, label='corner atoms')
+ax.scatter3D(face_x, face_y, face_z, color='red', s=30, label='face-centered atoms')
+
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('z')
+ax.set_title(f'FCC lattice, {n}x{n}x{n} unit cells, a={a}')
+ax.legend()
+
+plt.savefig('fcc_lattice.png')
+plt.show()
